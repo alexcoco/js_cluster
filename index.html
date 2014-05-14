@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JS Clustering</title>
+
+	<script src="seedrandom.js"></script>
+	<script src="util.js"></script>
+	<script src="vector.js"></script>
+	<script src="data_generator.js"></script>
+	<script src="kmeans.js"></script>
+	<script src="kmeans_renderer.js"></script>
+	<script src="application.js"></script>
+</head>
+<body>
+<script>
+	// Generate a random number and seed Math.random
+	var seed = Util.randi(1000);
+	Math.seedrandom(seed);
+	console.log('Seed: ' + seed);
+
+
+	var app = new Application({
+		clusters: 8,
+		stdDev: 50,
+		max: [800,700],
+		initializer: 'forgy',
+		points: 10000,
+		interval: 1000/10
+	});
+
+	app.start();
+</script>
+</body>
+</html>
