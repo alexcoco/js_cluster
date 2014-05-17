@@ -12,23 +12,32 @@
 	<script src="application.js"></script>
 </head>
 <body>
+<canvas id="canvas"></canvas>
 <script>
 	// Generate a random number and seed Math.random
 	var seed = Util.randi(1000);
 	Math.seedrandom(seed);
 	console.log('Seed: ' + seed);
 
-
+	// Create and start application
 	var app = new Application({
-		clusters: 8,
-		stdDev: 50,
-		max: [800,700],
-		initializer: 'forgy',
-		points: 10000,
-		interval: 1000/10
+		id: 'canvas',
+		max: [800,700]
 	});
 
-	app.start();
+	var options = {
+		clusters: 8,
+		stdDev: 50,
+		points: 1000,
+		max: [800,700],
+		initializer: 'forgy',
+		interval: 1000/10
+	};
+
+	app.start(options, function() {
+		console.log('Completed in ' + app.ticks() + ' iterations');
+		console.log('Took ' + app.duration() + ' ms');
+	});
 </script>
 </body>
 </html>

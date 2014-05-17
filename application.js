@@ -1,38 +1,60 @@
-var Application = function(params) {
-  this.params = params;
+var Application = function(options) {
+  this.timer = null;
+  this.startTime = null;
+  this.endTime = null;
+  
+  this.data = [];
+  this.kmeans = null;
+
+  // Set up canvas
+  var canvas = document.getElementById(options.id);
+  canvas.width =  options.max[0];
+  canvas.height = options.max[1];
 }
 
-Application.prototype.start = function() {
-  var params = this.params;
+Application.prototype.start = function(options, callback) {
+  // Initialize data generator
+  var generator = new DataGenerator({
+    max:      options.max,
+    stdDev:   options.stdDev,
+    clusters: options.clusters
+  });
 
-  // Generate points
-  var generator = new DataGenerator(params.max, params.clusters, params.stdDev);
-  var points = generator.generate(params.points);
+  // Generate data
+  this.data = generator.generate(options.points);
+
+  // Check time before starting
+  this.startTime = new Date().getTime();
 
   // Set up kmeans
-  var kmeans = new KMeans(points, params.clusters);
-  kmeans.init(params.initializer);
-
-  var before = new Date().getTime();
-  // Set up canvas
-  var canvas = document.createElement('canvas');
-  canvas.width = params.max[0];
-  canvas.height = params.max[1];
-  document.body.appendChild(canvas);
+  this.kmeans = new KMeans(this.data, options.clusters);
+  this.kmeans.init(options.initializer);
 
   // Set up renderer
-  var renderer = new KMeansRenderer(canvas, kmeans);
+  var renderer = new KMeansRenderer(canvas, this.kmeans);
   renderer.render();
 
   // Run clustering visualization
+  var _this = this;
   var timer = setInterval(function() {
-    kmeans.tick();
+    _this.kmeans.tick();
     renderer.render();
 
-    if (kmeans.converged) {
+    if (_this.kmeans.converged) {
       clearInterval(timer);
-      console.log('Converged after ' + kmeans.ticks + ' iterations');
-      console.log((new Date().getTime() - before) + ' millis');
+      _this.endTime = new Date().getTime();
+
+      if (callback && typeof callback == 'function') {
+        callback();
+      }
     }
-  }, params.interval);
+  }, options.interval);
+}
+
+Application.prototype.ticks = function() {
+  return this.kmeans.ticks;
+}
+
+Application.prototype.duration = function() {
+  return this.endTime - this.startTime;
 }
